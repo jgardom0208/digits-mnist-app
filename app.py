@@ -1,31 +1,34 @@
 import streamlit as st
-import tensorflow as tf
-import numpy as np
+from tensorflow.keras.models import load_model
 from PIL import Image
+import numpy as np
 
-st.title("Clasificador de Dígitos MNIST")
-st.write("Sube una imagen de un número (28x28) o dibuja uno.")
+# Cargar el modelo (asegúrate de que el nombre coincida con el que guardaste)
+model = load_model("best_model.keras")
 
-# Cargar el modelo (asegúrate de subir el archivo .h5 al repo o entrenarlo al inicio)
-@st.cache_resource
-def load_my_model():
-    # Para este ejemplo, creamos uno rápido si no existe el archivo
-    model = tf.keras.models.Sequential([
-        tf.keras.layers.Flatten(input_shape=(28, 28)),
-        tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dense(10, activation='softmax')
-    ])
-    return model
+# Crear la interfaz de usuario
+st.title("Clasificador de Números MNIST")
+st.write("Sube una imagen de un número para que el modelo lo identifique.")
 
-model = load_my_model()
+uploaded_file = st.file_uploader("Sube una imagen en escala de grises (28x28)", type=["png", "jpg", "jpeg"])
 
-file = st.file_uploader("Sube una imagen de un dígito", type=["png", "jpg"])
-
-if file:
-    img = Image.open(file).convert('L').resize((28, 28))
-    img_array = np.array(img) / 255.0
-    img_array = img_array.reshape(1, 28, 28)
+if uploaded_file is not None:
+    # Procesar la imagen
+    image = Image.open(uploaded_file).convert('L')
+    image = image.resize((28, 28))
+    img_array = np.array(image) / 255.0
     
+    # Ajustamos la forma para que coincida con tu modelo de Keras
+    img_array = img_array.reshape(1, 28, 28)
+
+    # Mostrar la imagen subida
+    st.image(image, caption="Imagen cargada", width=150)
+
+    # Predicción
     prediction = model.predict(img_array)
-    st.write(f"### Predicción: {np.argmax(prediction)}")
-    st.bar_chart(prediction[0])
+    
+    # Para números, las clases son simplemente los dígitos del 0 al 9
+    classes = ["Cero", "Uno", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve"]
+    
+    resultado = np.argmax(prediction)
+    st.write(f"### Predicción: {resultado} ({classes[resultado]})")
