@@ -3,14 +3,14 @@ from tensorflow.keras.models import load_model
 from PIL import Image
 import numpy as np
 
-# Cargar el modelo (asegúrate de que el nombre coincida con el que guardaste)
+# Cargar el modelo con la extensión correcta
 model = load_model("best_model.keras")
 
 # Crear la interfaz de usuario
-st.title("Clasificador de Números MNIST")
-st.write("Sube una imagen de un número para que el modelo lo identifique.")
+st.title("Clasificador de Números Escritos")
+st.write("Sube una imagen de un número (28x28) para identificarlo.")
 
-uploaded_file = st.file_uploader("Sube una imagen en escala de grises (28x28)", type=["png", "jpg", "jpeg"])
+uploaded_file = st.file_uploader("Sube una imagen en escala de grises", type=["png", "jpg", "jpeg"])
 
 if uploaded_file is not None:
     # Procesar la imagen
@@ -18,7 +18,7 @@ if uploaded_file is not None:
     image = image.resize((28, 28))
     img_array = np.array(image) / 255.0
     
-    # Ajustamos la forma para que coincida con tu modelo de Keras
+    # Preparamos los datos para el modelo (1 muestra, 28x28 píxeles)
     img_array = img_array.reshape(1, 28, 28)
 
     # Mostrar la imagen subida
@@ -27,8 +27,10 @@ if uploaded_file is not None:
     # Predicción
     prediction = model.predict(img_array)
     
-    # Para números, las clases son simplemente los dígitos del 0 al 9
+    # Definimos las etiquetas de los números
     classes = ["Cero", "Uno", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve"]
     
-    resultado = np.argmax(prediction)
-    st.write(f"### Predicción: {resultado} ({classes[resultado]})")
+    # Obtener el resultado
+    numero_detectado = np.argmax(prediction)
+    st.write(f"### Predicción: {numero_detectado}")
+    st.write(f"Etiqueta: {classes[numero_detectado]}")
