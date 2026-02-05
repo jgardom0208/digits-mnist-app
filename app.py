@@ -7,7 +7,7 @@ import numpy as np
 # Configuración de página
 st.set_page_config(page_title="MNIST Digit Classifier", layout="centered")
 
-# 1. Cargar el modelo
+# Cargar el modelo
 @st.cache_resource
 def load_my_model():
     return load_model("best_model.keras")
@@ -17,7 +17,7 @@ try:
 except Exception as e:
     st.error(f"Error al cargar el modelo: {e}")
 
-# 2. Interfaz
+# Interfaz
 st.title("🔢 Clasificador de Números MNIST")
 st.write("Sube una imagen de un número escrito a mano sobre fondo blanco o negro.")
 
@@ -25,11 +25,8 @@ uploaded_file = st.file_uploader("Elige una imagen...", type=["png", "jpg", "jpe
 
 if uploaded_file is not None:
     # Procesar imagen
-    image = Image.open(uploaded_file).convert('L') # Escala de grises
+    image = Image.open(uploaded_file).convert('L') 
     
-    # IMPORTANTE: MNIST espera fondo negro y trazo blanco. 
-    # Si la imagen tiene fondo blanco, la invertimos.
-    # Calculamos el promedio de brillo para decidir.
     if np.mean(image) > 127:
         image = ImageOps.invert(image)
 
